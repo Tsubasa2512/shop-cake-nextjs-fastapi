@@ -9,8 +9,8 @@ class User(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
-    id_role = Column(Integer, ForeignKey("role.id"), nullable=False)
 
+    id_role = Column(Integer, ForeignKey("role.id"), nullable=False)
     role = relationship("Role", back_populates="users")
     categories = relationship("Category", back_populates="user")
     products = relationship("Product", back_populates="user")

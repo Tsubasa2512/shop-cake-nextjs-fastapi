@@ -14,6 +14,7 @@ from app.api.v1.endpoints.config import router as config_router
 from app.api.v1.endpoints.role import router as role_router
 from app.api.v1.endpoints.permission import router as permission_router
 from app.api.v1.endpoints.role_permission import router as role_permission_router
+from app.api.v1.endpoints.user import router as user_router
 app = FastAPI()
 load_dotenv()
 
@@ -38,3 +39,4 @@ app.include_router(config_router)
 app.include_router(role_router)
 app.include_router(permission_router)
 app.include_router(role_permission_router)
+app.include_router(user_router)
