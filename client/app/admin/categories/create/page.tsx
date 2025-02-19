@@ -13,6 +13,10 @@ import { Switch } from "@/components/ui/switch";
 import { Menu } from "@/app/schema/menu";
 import { getMenus } from "@/app/api/menu";
 import { createCategory } from "@/app/api/category";
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
+
 
 export default function CreateCategoryPage() {
     const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +33,7 @@ export default function CreateCategoryPage() {
     const router = useRouter();
     const [formData, setFormData] = useState<{
         name: string;
-        description: string | null;
+        description: string;
         slug: string;
         image: File | null;
         is_active: boolean;
@@ -37,7 +41,7 @@ export default function CreateCategoryPage() {
         menu: string;
     }>({
         name: "",
-        description: null,
+        description: "",
         is_active: true,
         slug: "",
         image: null,
@@ -78,7 +82,7 @@ export default function CreateCategoryPage() {
                 ...prev,
                 [name]: value,
             };
-            if (name === "name" ) {
+            if (name === "name") {
                 newFormData.slug = value
                     .toLocaleLowerCase()
                     .replace(/\s+/g, "-")
@@ -143,10 +147,7 @@ export default function CreateCategoryPage() {
                             <Label htmlFor="image">Image</Label>
                             <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" onChange={handleChange} />
-                        </div>
+
                         <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch
@@ -154,6 +155,11 @@ export default function CreateCategoryPage() {
                                 checked={formData.is_active}
                                 onCheckedChange={(value) => setFormData((prev) => ({ ...prev, is_active: value }))}
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Create Category</Button>

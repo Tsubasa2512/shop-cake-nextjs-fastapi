@@ -13,6 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { Category } from "@/app/schema/category";
 import { getCategories } from "@/app/api/category";
 import { createProduct } from "@/app/api/product";
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
 
 export default function CreateProductPage() {
     const [isLoading, setIsLoading] = useState(true)
@@ -149,7 +152,7 @@ export default function CreateProductPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="price">Price</Label>
-                            <Input id="price" name="price" type="number"  value={formData.price} onChange={handleChange} />
+                            <Input id="price" name="price" type="number" value={formData.price} onChange={handleChange} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="intro">Intro</Label>
@@ -157,12 +160,9 @@ export default function CreateProductPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="image">Image</Label>
-                            <Input id="image" type="file" name="image" onChange={handleFileChange}  />
+                            <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
-                        </div>
+
                         <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch
@@ -174,6 +174,11 @@ export default function CreateProductPage() {
                         <div className="space-y-2">
                             <Label htmlFor="keywords">Keywords</Label>
                             <Textarea id="keywords" name="keywords" value={formData.keywords} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Create Product</Button>

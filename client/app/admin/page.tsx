@@ -77,7 +77,7 @@ export default function AdminDashboard() {
         </Card>
         <Card className="col-span-4 md:col-span-3">
           <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
+            <CardTitle>Recent User Admin</CardTitle>
           </CardHeader>
           <CardContent>
             <UserDashboard />

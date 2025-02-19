@@ -152,10 +152,7 @@ export default function CreateMenuPage() {
                             <Label htmlFor="image">Image</Label>
                             <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
-                        {/* <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
-                        </div> */}
+                      
                         <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch

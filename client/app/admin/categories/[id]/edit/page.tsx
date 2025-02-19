@@ -16,6 +16,9 @@ import Link from "next/link";
 import { Menu } from "@/app/schema/menu";
 import { getMenus } from "@/app/api/menu";
 import { getCategoryById, updateCategory } from "@/app/api/category";
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
 
 export default function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -58,8 +61,8 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
         const fetchCategoryData = async () => {
             const categoryData = await getCategoryById(categoryId);
             if (categoryData) {
-               categoryData.menu = String(categoryData.menu.id);
-               setFormData(categoryData);
+                categoryData.menu = String(categoryData.menu.id);
+                setFormData(categoryData);
             }
         };
         fetchCategoryData();
@@ -170,15 +173,6 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                             <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                onChange={handleChange}
-                                value={formData.description}
-                            />
-                        </div>
-                        <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch
                                 id="is_active"
@@ -186,7 +180,12 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                                 onCheckedChange={(value) => setFormData((prev) => ({ ...prev, is_active: value }))}
                             />
                         </div>
-
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
+                        </div>
+                    
                         <div className="flex space-x-2">
                             <Button type="submit">Update Category</Button>
                             <Button

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link";
 import "../globals.css";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Menu, Battery as Category, ShoppingBag, FileText, Image as ImageIcon, UserRoundCog, Share2, Settings, ChevronDown,ChevronLeftSquare, LogOut } from "lucide-react";
+import { LayoutDashboard, Menu, Battery as Category, ShoppingBag, FileText, Image as ImageIcon, UserRoundCog, Share2, Settings, ChevronDown,ChevronLeftSquare, LogOut,ShieldQuestion   } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,8 @@ const navigation = [
     { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
     { name: "Social Config", href: "/admin/social", icon: Share2 },
     { name: "General Config", href: "/admin/config", icon: Settings },
-    { name: "Management", href: "/admin/user", icon: UserRoundCog },
+    { name: "Management User", href: "/admin/user", icon: UserRoundCog },
+    { name: "Role Permission", href: "/admin/role", icon: ShieldQuestion   },
 ];
 
 export default function AdminLayout({

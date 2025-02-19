@@ -12,7 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-// Mock Menu Data (can be fetched from an API)
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
+
 const menu = [
     { id: 1, name: "About Us" },
     { id: 2, name: "Product" },
@@ -128,7 +131,7 @@ export default function EditGalleryPage({ params }: { params: { id: string } }) 
                             <Select
                                 name="id_menu"
                                 value={formData.id_menu}
-                                onValueChange={(value) => setFormData((prev) => ({ ...prev, id_menu: String(value) }))} 
+                                onValueChange={(value) => setFormData((prev) => ({ ...prev, id_menu: String(value) }))}
                                 required
                             >
                                 <SelectTrigger>
@@ -167,13 +170,8 @@ export default function EditGalleryPage({ params }: { params: { id: string } }) 
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                required
-                            />
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Update Gallery</Button>

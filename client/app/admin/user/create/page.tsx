@@ -1,71 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Role } from "@/app/schema/role";
+import { getRoles } from "@/app/api/role";
+import { createUser } from "@/app/api/user";
+import { Switch } from "@/components/ui/switch";
 
 export default function CreateUserPage() {
-    const menu = [
-        {
-            id: 1,
-            name: "About Us",
-        },
-        {
-            id: 2,
-            name: "Product",
-        },
-        {
-            id: 3,
-            name: "Blog",
-        },
-
-    ];
-
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const [formData, setFormData] = useState<{
-        name: string;
-        description: string;
-        slug: string;
-        image: File | null;
-        id_menu: string;
-    }>({
+
+    useEffect(() => {
+        async function fetchRoles() {
+            const data = await getRoles();
+            setRoles(data);
+            setIsLoading(false);
+        }
+        fetchRoles();
+    }, []);
+
+    const [formData, setFormData] = useState({
         name: "",
-        description: "",
-        slug: "",
-        image: null,
-        id_menu: "",
+        email: "",
+        password: "",
+        role: "",
+        is_active: true
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Creating User: ", formData);
-        router.push("/admin/user")
-    }
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-            ...(name === "name" && !formData.slug
-                ? { slug: value.toLocaleLowerCase().replace(/\s+/g, "-") }
-                : {}),
-        }));
-    };
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFormData((prev) => ({
-                ...prev,
-                image: file,
-            }));
+        setIsLoading(true);
+
+        const selectedRole = roles.find(r => r.id === parseInt(formData.role, 10));
+
+        const userData = {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: selectedRole || { id: 0, name: "Unknown" },
+            id_role: parseInt(formData.role, 10),
+            is_active: formData.is_active,
+
+        };
+
+        try {
+            const createdUser = await createUser(userData);
+            if (createdUser) {
+                console.log("User created successfully!");
+                router.push("/admin/user");
+            }
+        } catch (error) {
+            console.error("Failed to create user:", error);
         }
     };
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    if (isLoading) return (
+        <Button disabled><Loader2 className="animate-spin" /> Please wait...</Button>
+    );
 
     return (
         <div className="space-y-6">
@@ -84,44 +88,48 @@ export default function CreateUserPage() {
                             <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="slug">Slug</Label>
-                            <Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required />
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="id_menu">Menu</Label>
+                            <Label htmlFor="password">Password</Label>
+                            <Input id="password" name="password" type="password" value={formData.password} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="role">Role</Label>
                             <Select
-                                name="id_menu"
-                                defaultValue={formData.id_menu}
-                                onValueChange={(value) => setFormData((prev) => ({ ...prev, id_menu: value }))}
+                                name="role"
+                                value={formData.role}
+                                onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select a menu" />
+                                    <SelectValue placeholder="Select a role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {menu.map((item) => (
-                                        <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                                    {roles.map((role) => (
+                                        <SelectItem key={role.id} value={String(role.id)}>
+                                            {role.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="image">Image</Label>
-                            <Input id="image" type="file" name="image" onChange={handleFileChange} required />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
+                            <Label className="mr-2" htmlFor="is_active">Active</Label>
+                            <Switch
+                                id="is_active"
+                                checked={formData.is_active}
+                                onCheckedChange={(value) => setFormData((prev) => ({ ...prev, is_active: value }))}
+                            />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Create User</Button>
-                            <Button type="button" variant={"outline"} onClick={() => router.push("/admin/user")}>
-                                Cancel
-                            </Button>
+                            <Button type="button" variant="outline" onClick={() => router.push("/admin/user")}>Cancel</Button>
                         </div>
                     </form>
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }

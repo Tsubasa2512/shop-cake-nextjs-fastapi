@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,9 @@ import { Switch } from "@/components/ui/switch";
 import { Category } from "@/app/schema/category";
 import { getCategories } from "@/app/api/category";
 import { createArticle } from "@/app/api/article";
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
 
 export default function CreateArticlePage() {
     const [isLoading, setIsLoading] = useState(true);
@@ -157,10 +159,7 @@ export default function CreateArticlePage() {
                             <Label htmlFor="image">Image</Label>
                             <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} />
-                        </div>
+
                         <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch
@@ -176,6 +175,11 @@ export default function CreateArticlePage() {
                         <div className="space-y-2">
                             <Label htmlFor="tag">Tag</Label>
                             <Textarea id="tag" name="tag" value={formData.tag} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Create Article</Button>

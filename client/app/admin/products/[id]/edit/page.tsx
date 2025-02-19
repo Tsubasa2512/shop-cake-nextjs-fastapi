@@ -16,6 +16,9 @@ import Link from "next/link";
 import { Category } from "@/app/schema/category";
 import { getCategories } from "@/app/api/category";
 import { updateProduct, getProductById } from "@/app/api/product";
+import dynamic from 'next/dynamic';
+const CustomEditor = dynamic(() => import('@/components/editor/editor'), { ssr: false });
+
 
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,7 +29,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     const [formData, setFormData] = useState<{
         name: string;
         intro: string;
-        price: number ;
+        price: number;
         description: string;
         slug: string;
         image: File | null;
@@ -133,7 +136,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     <CardTitle>Product Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Name</Label>
                             <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
@@ -162,7 +165,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="price">Price</Label>
-                            <Input id="price" name="price" type="number"  value={formData.price} onChange={handleChange} />
+                            <Input id="price" name="price" type="number" value={formData.price} onChange={handleChange} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="intro">Intro</Label>
@@ -170,12 +173,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="image">Image</Label>
-                            <Input id="image" type="file" name="image" onChange={handleFileChange}  />
+                            <Input id="image" type="file" name="image" onChange={handleFileChange} />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
-                        </div>
+
                         <div className="space-y-2">
                             <Label className="mr-2" htmlFor="is_active">Active</Label>
                             <Switch
@@ -187,6 +187,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                         <div className="space-y-2">
                             <Label htmlFor="keywords">Keywords</Label>
                             <Textarea id="keywords" name="keywords" value={formData.keywords} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" className="hidden" name="description" value={formData.description} onChange={handleChange} />
+                            <CustomEditor data={formData.description} onChange={(data: string) => setFormData((prev) => ({ ...prev, description: data }))} />
                         </div>
                         <div className="flex space-x-2">
                             <Button type="submit">Update Product</Button>

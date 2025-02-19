@@ -1,51 +1,49 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getUsers } from "@/app/api/user"; // Gọi API lấy danh sách user
+import { Loader2 } from "lucide-react";
+import { User } from "@/app/schema/user";
 
 export function UserDashboard() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const data = await getUsers(); // Gọi API lấy danh sách user
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-4">
+        <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      {[
-        {
-          name: "John Doe",
-          email: "john@example.com",
-          amount: "$250.00",
-          initials: "JD"
-        },
-        {
-          name: "Alice Smith",
-          email: "alice@example.com",
-          amount: "$150.00",
-          initials: "AS"
-        },
-        {
-          name: "Bob Johnson",
-          email: "bob@example.com",
-          amount: "$350.00",
-          initials: "BJ"
-        },
-        {
-          name: "Emma Wilson",
-          email: "emma@example.com",
-          amount: "$450.00",
-          initials: "EW"
-        },
-        {
-          name: "Mike Brown",
-          email: "mike@example.com",
-          amount: "$550.00",
-          initials: "MB"
-        }
-      ].map((sale, index) => (
-        <div key={index} className="flex items-center">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback>{sale.initials}</AvatarFallback>
+    <div className="space-y-4">
+      {users.map((user) => (
+        <div key={user.id} className="flex items-center p-2 border rounded-lg">
+          <Avatar className="h-10 w-10 bg-gray-200 text-gray-800">
+            <AvatarFallback>{user.id}</AvatarFallback>
           </Avatar>
-          <div className="ml-4 space-y-1">
-            <p className="text-sm font-medium leading-none">{sale.name}</p>
-            <p className="text-sm text-muted-foreground">{sale.email}</p>
+          <div className="ml-4">
+            <p className="text-sm font-medium">{user.name}</p>
+            <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
-          <div className="ml-auto font-medium">{sale.amount}</div>
+          <div className="ml-auto font-medium">{user.role.name}</div>
         </div>
       ))}
     </div>

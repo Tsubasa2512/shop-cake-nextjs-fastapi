@@ -88,7 +88,7 @@ export default function ArticlePage() {
                                             <CircleX className="mx-auto" />
                                         )}                                    </TableCell>
                                     <TableCell className="border py-2 px-3">{article.name}</TableCell>
-                                    <TableCell className="border py-2 px-3"><div className="line-clampy-2 px-3">{article.description}</div></TableCell>
+                                    <TableCell className="border py-2 px-3"><div className="line-clampy-2 px-3">{article.intro}</div></TableCell>
                                     <TableCell className="border py-2 px-3">
                                         <div className="line-clamp-2">{article.is_active ? <CircleCheck className="mx-auto" /> : <CircleX className="mx-auto" />}</div>
                                     </TableCell>

@@ -69,7 +69,7 @@ export default function CategoriesPage() {
                             <TableHead className="border text-center w-[120px]">Menu</TableHead>
                             <TableHead className="border text-center w-[80px]">Image</TableHead>
                             <TableHead className="border text-center ">Name</TableHead>
-                            <TableHead className="border text-center ">Description</TableHead>
+                            <TableHead className="border text-center ">Slug</TableHead>
                             <TableHead className="border text-center w-[80px]">Active</TableHead>
                             <TableHead className="border text-center w-[120px]">Actions</TableHead>
                         </TableRow>
@@ -93,7 +93,7 @@ export default function CategoriesPage() {
                                         )}
                                     </TableCell>
                                     <TableCell className="border py-2 px-3">{category.name}</TableCell>
-                                    <TableCell className="border py-2 px-3"><div className="line-clampy-2 px-3">{category.description}</div></TableCell>
+                                    <TableCell className="border py-2 px-3"><div className="line-clampy-2 px-3">{category.slug}</div></TableCell>
                                     <TableCell className="border py-2 px-3">
                                         <div className="line-clamp-2">{category.is_active ? <CircleCheck className="mx-auto" /> : <CircleX className="mx-auto" />}</div>
                                     </TableCell>
