@@ -1,0 +1,206 @@
+"use client"
+
+import { useState, useEffect, use } from "react";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import Image from "next/image";
+import { Switch } from "@/components/ui/switch";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
+import { Category } from "@/app/schema/category";
+import { getCategories } from "@/app/api/category";
+import { updateProduct, getProductById } from "@/app/api/product";
+
+
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
+    const { id } = use(params);
+    const productId = parseInt(id)
+    const [category, setCategory] = useState<Category[]>([]);
+    const [formData, setFormData] = useState<{
+        name: string;
+        intro: string;
+        price: number ;
+        description: string;
+        slug: string;
+        image: File | null;
+        is_active: boolean;
+        id_user: number;
+        keywords: string;
+        category: string;
+    }>({
+        name: "",
+        intro: "",
+        price: 0,
+        description: "",
+        is_active: true,
+        slug: "",
+        image: null,
+        category: "",
+        keywords: "",
+        id_user: 1,
+    });
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchCategory() {
+            const data = await getCategories();
+            setCategory(data);
+            setIsLoading(false);
+        };
+        fetchCategory();
+    }, []);
+
+    useEffect(() => {
+        const fetchProductData = async () => {
+            const productData = await getProductById(productId);
+            if (productData) {
+                productData.category = String(productData.category.id);
+                setFormData(productData);
+            }
+        };
+        fetchProductData();
+    }, [productId]);
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const updateProductData = {
+            ...formData,
+            id_category: parseInt(formData.category),
+        }
+        try {
+            const updatedProduct = await updateProduct(productId, updateProductData);
+            if (updatedProduct) {
+                router.push("/admin/products");
+            } else {
+                console.log("Failed to update Product");
+            }
+        } catch (error) {
+            console.error("Failed to update Product", error);
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => {
+            const newFormData = {
+                ...prev,
+                [name]: value,
+            };
+            if (name === "name") {
+                newFormData.slug = value
+                    .toLocaleLowerCase()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9\-]/g, "");
+            }
+            return newFormData;
+        });
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setFormData((prev) => ({
+                ...prev,
+                image: file,
+            }));
+        }
+    };
+    if (isLoading) return (
+        <Button disabled><Loader2 className="animate-spin" />Please wait...</Button>
+    );
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <h1 className="text-2xl md:text-3xl font-bold">Edit Product</h1>
+                <Link href="/admin/menu">
+                    <Button variant="outline">
+                        <Pencil className="mr-1 h-4 w-4" /> Back to Menu List
+                    </Button>
+                </Link>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Product Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Name</Label>
+                            <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="slug">Slug</Label>
+                            <Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="id_category">Category</Label>
+                            <Select
+                                name="id_category"
+                                defaultValue={formData.category}
+                                onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+                                required
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a Category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {category.map((item) => (
+                                        <SelectItem key={item.id} value={String(item.id)}>{item.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="price">Price</Label>
+                            <Input id="price" name="price" type="number"  value={formData.price} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="intro">Intro</Label>
+                            <Textarea id="intro" name="intro" value={formData.intro} onChange={handleChange} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="image">Image</Label>
+                            <Input id="image" type="file" name="image" onChange={handleFileChange}  />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="mr-2" htmlFor="is_active">Active</Label>
+                            <Switch
+                                id="is_active"
+                                checked={formData.is_active}
+                                onCheckedChange={(value) => setFormData((prev) => ({ ...prev, is_active: value }))}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="keywords">Keywords</Label>
+                            <Textarea id="keywords" name="keywords" value={formData.keywords} onChange={handleChange} />
+                        </div>
+                        <div className="flex space-x-2">
+                            <Button type="submit">Update Product</Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => router.push("/admin/products")}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
